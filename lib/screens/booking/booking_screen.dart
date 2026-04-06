@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../models/peminjaman.dart';
-import '../../services/peminjaman_service.dart';
-import 'peminjaman_detail_screen.dart';
-import 'peminjaman_create_screen.dart';
+import '../../models/booking.dart';
+import '../../services/booking_service.dart';
+import 'booking_detail_screen.dart';
+import 'booking_create_screen.dart';
 
-class PeminjamanScreen extends StatefulWidget {
-  const PeminjamanScreen({super.key});
+class BookingScreen extends StatefulWidget {
+  const BookingScreen({super.key});
 
   @override
-  State<PeminjamanScreen> createState() => _PeminjamanScreenState();
+  State<BookingScreen> createState() => _BookingScreenState();
 }
 
-class _PeminjamanScreenState extends State<PeminjamanScreen> {
-  final _service = PeminjamanService();
-  List<Peminjaman> _list = [];
+class _BookingScreenState extends State<BookingScreen> {
+  final _service = BookingService();
+  List<Booking> _list = [];
   bool _loading = true;
 
   @override
@@ -35,50 +35,29 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
 
   Color _statusColor(String status) {
     switch (status) {
-      case 'disetujui':
+      case 'Diterima':
         return const Color(0xFF16A34A);
-      case 'menunggu':
+      case 'Pending':
         return const Color(0xFFF59E0B);
-      case 'ditolak':
+      case 'Ditolak':
         return const Color(0xFFEF4444);
-      case 'dipinjam':
-        return const Color(0xFF3B82F6);
-      case 'dikembalikan':
+      case 'Selesai':
         return const Color(0xFF8B5CF6);
       default:
         return Colors.grey;
     }
   }
 
-  String _statusLabel(String status) {
-    switch (status) {
-      case 'disetujui':
-        return 'Disetujui';
-      case 'menunggu':
-        return 'Menunggu';
-      case 'ditolak':
-        return 'Ditolak';
-      case 'dipinjam':
-        return 'Dipinjam';
-      case 'dikembalikan':
-        return 'Dikembalikan';
-      default:
-        return status;
-    }
-  }
-
   IconData _statusIcon(String status) {
     switch (status) {
-      case 'disetujui':
+      case 'Diterima':
         return Icons.check_circle_rounded;
-      case 'menunggu':
+      case 'Pending':
         return Icons.access_time_rounded;
-      case 'ditolak':
+      case 'Ditolak':
         return Icons.cancel_rounded;
-      case 'dipinjam':
-        return Icons.inventory_2_rounded;
-      case 'dikembalikan':
-        return Icons.assignment_return_rounded;
+      case 'Selesai':
+        return Icons.task_alt_rounded;
       default:
         return Icons.info_rounded;
     }
@@ -86,12 +65,18 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
 
   String _formatTanggal(String tanggal) {
     try {
-      // Ambil tanggal saja, buang waktu dan timezone
-      final dateOnly = tanggal.split('T')[0]; // → "2026-03-27"
-      final dt = DateTime.parse(dateOnly);
+      final dt = DateTime.parse(tanggal.split('T')[0]);
       return DateFormat('dd MMM yyyy', 'id').format(dt);
     } catch (_) {
       return tanggal;
+    }
+  }
+
+  String _formatWaktu(String waktu) {
+    try {
+      return waktu.substring(0, 5);
+    } catch (_) {
+      return waktu;
     }
   }
 
@@ -103,7 +88,7 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
         backgroundColor: const Color(0xFFF97316),
         foregroundColor: Colors.white,
         title: const Text(
-          'Peminjaman Barang',
+          'Booking Ruangan',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: false,
@@ -127,35 +112,31 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
                   : ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: _list.length,
-                      itemBuilder: (_, i) => _peminjamanCard(_list[i]),
+                      itemBuilder: (_, i) => _bookingCard(_list[i]),
                     ),
             ),
-
-      // Tombol ajukan peminjaman
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          final result = await Get.to(() => const PeminjamanCreateScreen());
+          final result = await Get.to(() => const BookingCreateScreen());
           if (result == true) _fetch();
         },
         backgroundColor: const Color(0xFFF97316),
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
         label: const Text(
-          'Ajukan Peminjaman',
+          'Booking',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
     );
   }
 
-  Widget _peminjamanCard(Peminjaman p) {
-    final color = _statusColor(p.status);
+  Widget _bookingCard(Booking b) {
+    final color = _statusColor(b.status);
 
     return GestureDetector(
       onTap: () async {
-        final result = await Get.to(
-          () => PeminjamanDetailScreen(id: p.id),
-        );
+        final result = await Get.to(() => BookingDetailScreen(id: b.id));
         if (result == true) _fetch();
       },
       child: Container(
@@ -173,7 +154,7 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
         ),
         child: Column(
           children: [
-            // Header card
+            // Header
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
@@ -185,10 +166,10 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(_statusIcon(p.status), color: color, size: 18),
+                  Icon(_statusIcon(b.status), color: color, size: 18),
                   const SizedBox(width: 8),
                   Text(
-                    p.kode,
+                    b.kode,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
@@ -203,7 +184,7 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      _statusLabel(p.status),
+                      b.status,
                       style: TextStyle(
                         color: color,
                         fontSize: 12,
@@ -215,121 +196,84 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
               ),
             ),
 
-            // Body card
+            // Body
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // Tanggal
-                  // Tanggal
+                  // Ruangan
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today_rounded,
-                          size: 14, color: Colors.grey),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          '${_formatTanggal(p.tanggalPinjam)} → ${_formatTanggal(p.tanggalKembali)}',
-                          style:
-                              const TextStyle(fontSize: 12, color: Colors.grey),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7ED),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.meeting_room_rounded,
+                          color: Color(0xFFF97316),
+                          size: 20,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '${p.durasiHari} hari',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              b.ruangan['nama_ruangan'] ?? '-',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            if (b.ruangan['lokasi'] != null)
+                              Text(
+                                b.ruangan['lokasi'],
+                                style: const TextStyle(
+                                    fontSize: 12, color: Colors.grey),
+                              ),
+                          ],
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   const Divider(height: 1),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
 
-                  // List barang
-                  ...p.barang.take(2).map(
-                        (b) => Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 32,
-                                height: 32,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF7ED),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.inventory_2_rounded,
-                                  color: Color(0xFFF97316),
-                                  size: 16,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      b.namaBarang,
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    Text(
-                                      b.namaRuangan,
-                                      style: const TextStyle(
-                                          fontSize: 11, color: Colors.grey),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                '${b.jumlah} unit',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFFF97316),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                  // Tanggal & waktu
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_today_rounded,
+                          size: 14, color: Colors.grey),
+                      const SizedBox(width: 6),
+                      Text(
+                        _formatTanggal(b.tanggal),
+                        style:
+                            const TextStyle(fontSize: 13, color: Colors.grey),
                       ),
-
-                  // Kalau barang lebih dari 2
-                  if (p.barang.length > 2)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '+${p.barang.length - 2} barang lainnya',
+                      const Spacer(),
+                      const Icon(Icons.access_time_rounded,
+                          size: 14, color: Colors.grey),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${_formatWaktu(b.waktuMulai)} - ${_formatWaktu(b.waktuSelesai)}',
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                           color: Color(0xFFF97316),
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ),
+                    ],
+                  ),
 
-                  // Alasan tolak
-                  if (p.status == 'ditolak' && p.alasanTolak != null) ...[
-                    const SizedBox(height: 8),
+                  // Keterangan tolak
+                  if (b.status == 'Ditolak' && b.keterangan != null) ...[
+                    const SizedBox(height: 10),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(10),
@@ -344,7 +288,7 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              p.alasanTolak!,
+                              b.keterangan!,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFFEF4444),
@@ -377,23 +321,22 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Icon(
-              Icons.inventory_2_rounded,
+              Icons.meeting_room_rounded,
               color: Color(0xFFF97316),
               size: 40,
             ),
           ),
           const SizedBox(height: 16),
           const Text(
-            'Belum ada peminjaman',
+            'Belum ada booking',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
             ),
           ),
           const SizedBox(height: 8),
           const Text(
-            'Ajukan peminjaman barang\ndengan menekan tombol di bawah',
+            'Ajukan booking ruangan\ndengan menekan tombol di bawah',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey, fontSize: 13),
           ),

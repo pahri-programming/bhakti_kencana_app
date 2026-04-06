@@ -6,6 +6,7 @@ import '../../config/api_config.dart';
 import 'dart:convert';
 import '../auth/login_screen.dart';
 import '../peminjaman/peminjaman_screen.dart';
+import '../booking/booking_screen.dart';
 import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
@@ -233,14 +234,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         _menuCard(Icons.meeting_room_rounded,
                             'Booking\nRuangan', const Color(0xFFF97316)),
                         const SizedBox(width: 10),
-                        _menuCard(Icons.inventory_2_rounded, 'Peminjaman\nBarang',
-                            const Color(0xFF3B82F6)),
+                        _menuCard(Icons.inventory_2_rounded,
+                            'Peminjaman\nBarang', const Color(0xFF3B82F6)),
                         const SizedBox(width: 10),
-                        _menuCard(Icons.receipt_long_rounded, 'Riwayat\nTransaksi',
-                            const Color(0xFF10B981)),
+                        _menuCard(Icons.receipt_long_rounded,
+                            'Riwayat\nTransaksi', const Color(0xFF10B981)),
                         const SizedBox(width: 10),
-                        _menuCard(Icons.warning_amber_rounded, 'Denda\nTransaksi',
-                            const Color(0xFFEF4444)),
+                        _menuCard(Icons.warning_amber_rounded,
+                            'Denda\nTransaksi', const Color(0xFFEF4444)),
                       ],
                     ),
 
@@ -324,6 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: (i) {
             setState(() => _selectedNav = i);
             if (i == 1) Get.to(() => const PeminjamanScreen());
+            if (i == 2) Get.to(() => const BookingScreen());
           },
           type: BottomNavigationBarType.fixed,
           selectedItemColor: const Color(0xFFF97316),

@@ -1,5 +1,5 @@
 class ApiConfig {
-  static const String baseUrl = 'http://localhost:8000/api';
+  static const String baseUrl = 'http://10.227.124.123:8000/api';
 
   // Auth
   static const String login    = '$baseUrl/auth/login';

@@ -7,6 +7,7 @@ import 'dart:convert';
 import '../auth/login_screen.dart';
 import '../peminjaman/peminjaman_screen.dart';
 import '../booking/booking_screen.dart';
+import '../denda/denda_screen.dart';
 import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
@@ -240,8 +241,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         _menuCard(Icons.receipt_long_rounded,
                             'Riwayat\nTransaksi', const Color(0xFF10B981)),
                         const SizedBox(width: 10),
+                        // Di _menuCard Denda, update onTap
                         _menuCard(Icons.warning_amber_rounded,
-                            'Denda\nTransaksi', const Color(0xFFEF4444)),
+                            'Denda\nTransaksi', const Color(0xFFEF4444),
+                            onTap: () => Get.to(() => const DendaScreen())),
                       ],
                     ),
 
@@ -361,11 +364,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ── WIDGETS ──────────────────────────────────────────────
-
-  Widget _menuCard(IconData icon, String label, Color color) {
+  Widget _menuCard(IconData icon, String label, Color color,
+      {VoidCallback? onTap}) {
     return Expanded(
       child: GestureDetector(
-        onTap: () {},
+        onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(

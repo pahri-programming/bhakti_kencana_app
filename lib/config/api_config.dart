@@ -1,7 +1,9 @@
 class ApiConfig {
   static const String baseUrl = 'http://10.227.124.123:8000/api';
+  // static const String baseUrl = 'http://localhost:8000/api';
 
   // Auth
+  
   static const String login    = '$baseUrl/auth/login';
   static const String logout   = '$baseUrl/auth/logout';
   static const String me       = '$baseUrl/auth/me';
@@ -26,4 +28,9 @@ class ApiConfig {
   static String bookingDetail(int id)            => '$baseUrl/booking/$id';
   static String dendaDetail(String type, int id) => '$baseUrl/denda/$type/$id';
   static String uploadBukti(String type, int id) => '$baseUrl/denda/$type/$id/upload-bukti';
+
+  // Profile
+  static const String profile = '$baseUrl/profile';
+  static const String profilePassword = '$baseUrl/profile/password';
+  static const String riwayat = '$baseUrl/riwayat';
 }
